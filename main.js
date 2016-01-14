@@ -1,6 +1,6 @@
 var AM = new AssetManager();
 
-function Animation(spriteSheet, frameWidth, frameHeight, frameDuration, frames, framesPerRow, loop, reverse) {
+function Animation(spriteSheet, frameWidth, frameHeight, frameDuration, frames, framesPerRow, startFrame, endFrame, loop, reverse) {
     this.spriteSheet = spriteSheet;
     this.frameWidth = frameWidth;
     this.frameDuration = frameDuration;
@@ -12,6 +12,8 @@ function Animation(spriteSheet, frameWidth, frameHeight, frameDuration, frames, 
     this.loop = loop;
     this.reverse = reverse;
 }
+
+//TODO animation and CapGuy needs updating to walk other way
 
 Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     this.elapsedTime += tick;
@@ -26,12 +28,12 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
 
     console.log(frame + " " + xindex + " " + yindex);
 
-    ctx.drawImage(this.spriteSheet,
-        xindex * this.frameWidth, yindex * this.frameHeight,  // source from sheet
-        this.frameWidth, this.frameHeight,
-        x, y,
-        this.frameWidth,
-        this.frameHeight);
+    ctx.drawImage(this.spriteSheet,                             // image
+        xindex * this.frameWidth, yindex * this.frameHeight,    // sx, sy
+        this.frameWidth, this.frameHeight,                      // sw, sh
+        x, y,                                                   // dx, dy
+        this.frameWidth, this.frameHeight                       // dw, dh
+    );
 }
 
 Animation.prototype.currentFrame = function () {
@@ -43,11 +45,13 @@ Animation.prototype.isDone = function () {
 }
 
 function CapGuy(game, spritesheet) {
-    this.animation = new Animation(spritesheet, 184, 325, 0.1, 8, 8, true, false);
+    this.animation = new Animation(spritesheet, 184, 325, 0.1, 16, 8, 0, 7, true, false);
+    this.reverseAnimation = new Animation(spritesheet, 184, 325, .1, 8, 8, 8, 15, true, true);
     this.x = 0;
     this.y = 0;
     this.game = game;
     this.ctx = game.ctx;
+    this.reverse = false
 }
 
 CapGuy.prototype.draw = function () {
@@ -55,8 +59,16 @@ CapGuy.prototype.draw = function () {
 }
 
 CapGuy.prototype.update = function () {
+    if (this.reverse) {
+        this.x -= 4.5;
+
+    } else {
+
+    }
     this.x += 4.5;
-    if (this.x >= 800) this.x = -200;
+    if (this.x >= 800) {
+        this.x = -200;
+    }
 }
 
 
