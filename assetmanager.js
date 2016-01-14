@@ -6,46 +6,39 @@ function AssetManager() {
 }
 
 AssetManager.prototype.queueDownload = function (path) {
-    console.log(path.toString());
+    console.log("Queueing " + path);
     this.downloadQueue.push(path);
-};
+}
 
 AssetManager.prototype.isDone = function () {
-    return (this.downloadQueue.length == this.successCount + this.errorCount);
-};
+    return this.downloadQueue.length === this.successCount + this.errorCount;
+}
 
 AssetManager.prototype.downloadAll = function (callback) {
-    if (this.downloadQueue.length === 0) window.setTimeout(callback, 100);
     for (var i = 0; i < this.downloadQueue.length; i++) {
-        var path = this.downloadQueue[i];
         var img = new Image();
-        img.success = false;
+        var that = this;
 
-        var loadFunction = function (img, self) {
-            console.log("loaded: " + this.src.toString());
-            img.success = true;
-            self.successCount++;
-            if (self.isDone()) {
-                callback();
-            }
-        };
+        var path = this.downloadQueue[i];
+        console.log(path);
 
-        var errorFunction = function (self) {
-            console.log("error: " + this.src.toString());
-            self.errorCount++;
-            if (self.isDone()) {
-                callback();
-            }
-        };
+        img.addEventListener("load", function () {
+            console.log("Loaded " + this.src);
+            that.successCount++;
+            if(that.isDone()) callback();
+        });
 
-        img.addEventListener("load", loadFunction(img, this));
-        img.addEventListener("error", errorFunction(this));
+        img.addEventListener("error", function () {
+            console.log("Error loading " + this.src);
+            that.errorCount++;
+            if (that.isDone()) callback();
+        });
 
         img.src = path;
         this.cache[path] = img;
     }
-};
+}
 
 AssetManager.prototype.getAsset = function (path) {
     return this.cache[path];
-};
+}
